@@ -106,3 +106,14 @@
            (gps #{:son-at-home :car-needs-battery :have-money :have-phone-book}
                 [:son-at-school :have-money]
                 school-ops)))))
+
+(deftest recursive-ops
+  (is (thrown?
+        StackOverflowError
+        (gps #{:son-at-home :car-needs-battery :have-money}
+             [:son-at-school]
+             (cons {:action :ask-phone-number
+                    :preconditions [:in-communication-with-shop]
+                    :add-list #{:know-phone-number}
+                    :delete-list #{}}
+                   school-ops)))))
