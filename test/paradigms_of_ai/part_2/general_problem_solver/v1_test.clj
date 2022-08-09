@@ -29,52 +29,79 @@
     :add-list #{:shop-has-money}
     :delete-list #{:have-money}}])
 
+(def line-end
+  (System/getProperty "line.separator"))
+
+(def success
+  (str "Success" line-end))
+
+(def failure
+  (str "Failure" line-end))
+
 (defn action-list
-  [& actions]
+  [actions]
   (->> actions
-       (map #(str "Executing " % (System/getProperty "line.separator")))
+       (map #(str "Executing " % line-end))
        (str/join "")))
 
+(defn successful-action-list
+  [& actions]
+  (str (action-list actions)
+       success))
+
+(defn failed-action-list
+  [& actions]
+  (str (action-list actions)
+       failure))
+
 (deftest successful-solve
-  (is (= (action-list :look-up-number
-                      :telephone-shop
-                      :tell-shop-problem
-                      :give-shop-money
-                      :shop-install-battery
-                      :drive-son-to-school)
+  (is (= (successful-action-list
+           :look-up-number
+           :telephone-shop
+           :tell-shop-problem
+           :give-shop-money
+           :shop-install-battery
+           :drive-son-to-school)
          (with-out-str
            (gps #{:son-at-home :car-needs-battery :have-money :have-phone-book}
                 [:son-at-school]
                 school-ops)))))
 
 (deftest failed-solve
-  (is (= ""
+  (is (= failure
          (with-out-str
            (gps #{:son-at-home :car-needs-battery :have-money}
                 [:son-at-school]
                 school-ops)))))
 
 (deftest simple-solve
-  (is (= (action-list :drive-son-to-school)
+  (is (= (successful-action-list :drive-son-to-school)
          (with-out-str
            (gps #{:son-at-home :car-works}
                 [:son-at-school]
                 school-ops)))))
 
 (deftest clobbered-sibling-goal-bug
-  (is (= (action-list :look-up-number
-                      :telephone-shop
-                      :tell-shop-problem
-                      :give-shop-money
-                      :shop-install-battery
-                      :drive-son-to-school)
+  (is (= (successful-action-list
+           :look-up-number
+           :telephone-shop
+           :tell-shop-problem
+           :give-shop-money
+           :shop-install-battery
+           :drive-son-to-school)
          (with-out-str
            (gps #{:son-at-home :car-needs-battery :have-money :have-phone-book}
                 [:have-money :son-at-school]
                 school-ops)))))
 
 (deftest clobbered-sibling-goal-ordering
-  (is (= ""
+  (is (= (failed-action-list
+           :look-up-number
+           :telephone-shop
+           :tell-shop-problem
+           :give-shop-money
+           :shop-install-battery
+           :drive-son-to-school)
          (with-out-str
            (gps #{:son-at-home :car-needs-battery :have-money :have-phone-book}
                 [:son-at-school :have-money]

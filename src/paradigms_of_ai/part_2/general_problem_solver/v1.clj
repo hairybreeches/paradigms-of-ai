@@ -35,5 +35,5 @@
   (reset! state start-state)
   (reset! ops available-ops)
   (if (every? achieve goals)
-    true
-    false))
+    (println "Success")
+    (println "Failure")))
