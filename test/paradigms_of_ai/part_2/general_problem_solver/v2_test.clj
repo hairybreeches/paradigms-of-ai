@@ -150,3 +150,42 @@
   (is (= [1 2 3 4 9 8 7 12 11 16 17 22 23 24 19 20 25]
          (maze-path
            (gps [[:at 1]] [[:at 25]] maze-ops)))))
+
+(defn move-ons
+  [a b c]
+  (if (= b :table)
+    #{[a :on c]}
+    #{[a :on c] [:space :on b]}))
+
+(defn move-op
+  [a b c]
+  {:action [:move a :from b :to c]
+   :preconditions [[:space :on a] [:space :on c] [a :on b]]
+   :add-list (move-ons a b c)
+   :delete-list (move-ons a c b)})
+
+(defn make-block-ops
+  [blocks]
+  (mapcat
+    identity
+    (for [a blocks
+          b blocks
+          :when (not= a b)]
+      (concat
+        [(move-op a :table b)
+         (move-op a b :table)]
+        (for [c (remove #{a b} blocks)]
+          (move-op a b c))))))
+
+(deftest simple-blocks
+  (is (= [[:executing [:move :a :from :table :to :b]]]
+         (gps [[:a :on :table] [:b :on :table] [:space :on :a] [:space :on :b] [:space :on :table]]
+              [[:a :on :b] [:b :on :table]]
+              (make-block-ops [:a :b])))))
+
+(deftest more-complex-blocks
+  (is (= [[:executing [:move :a :from :b :to :table]]
+          [:executing [:move :b :from :table :to :a]]]
+         (gps [[:a :on :b] [:b :on :table] [:space :on :a] [:space :on :table]]
+              [[:b :on :a] [:a :on :table]]
+              (make-block-ops [:a :b])))))
