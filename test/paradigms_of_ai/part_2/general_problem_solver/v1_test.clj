@@ -44,19 +44,38 @@
                       :drive-son-to-school)
          (with-out-str
            (gps #{:son-at-home :car-needs-battery :have-money :have-phone-book}
-                #{:son-at-school}
+                [:son-at-school]
                 school-ops)))))
 
 (deftest failed-solve
   (is (= ""
          (with-out-str
            (gps #{:son-at-home :car-needs-battery :have-money}
-                #{:son-at-school}
+                [:son-at-school]
                 school-ops)))))
 
 (deftest simple-solve
   (is (= (action-list :drive-son-to-school)
          (with-out-str
            (gps #{:son-at-home :car-works}
-                #{:son-at-school}
+                [:son-at-school]
+                school-ops)))))
+
+(deftest clobbered-sibling-goal-bug
+  (is (= (action-list :look-up-number
+                      :telephone-shop
+                      :tell-shop-problem
+                      :give-shop-money
+                      :shop-install-battery
+                      :drive-son-to-school)
+         (with-out-str
+           (gps #{:son-at-home :car-needs-battery :have-money :have-phone-book}
+                [:have-money :son-at-school]
+                school-ops)))))
+
+(deftest clobbered-sibling-goal-ordering
+  (is (= ""
+         (with-out-str
+           (gps #{:son-at-home :car-needs-battery :have-money :have-phone-book}
+                [:son-at-school :have-money]
                 school-ops)))))
