@@ -119,3 +119,34 @@
          (gps [:at-door :on-floor :has-ball :hungry :chair-at-door]
               [:not-hungry]
               banana-ops))))
+
+(defn make-maze-op
+  [here there]
+  {:action [:move :from here :to there]
+   :preconditions [[:at here]]
+   :add-list #{[:at there]}
+   :delete-list #{[:at here]}})
+
+(defn make-maze-ops
+  [[x y]]
+  [(make-maze-op x y)
+   (make-maze-op y x)])
+
+(def maze-ops
+  (mapcat make-maze-ops
+          [[1 2] [2 3] [3 4] [4 9] [9 14] [9 8] [8 7] [7 12] [12 13] [12 11] [11 6] [11 16] [16 17] [17 22] [21 22]
+           [22 23] [23 18] [23 24] [24 19] [19 20] [20 15] [15 10] [10 5] [20 25]]))
+
+(defn maze-path
+  [moves]
+  (let [from-to-pairs (->> moves
+                           (map second)
+                           (map #(drop 2 %))
+                           (map (fn [[from _ to]] [from to])))]
+    (cons (first (first from-to-pairs))
+          (map second from-to-pairs))))
+
+(deftest maze-solving
+  (is (= [1 2 3 4 9 8 7 12 11 16 17 22 23 24 19 20 25]
+         (maze-path
+           (gps [[:at 1]] [[:at 25]] maze-ops)))))
