@@ -83,3 +83,39 @@
                      :add-list #{:know-phone-number}
                      :delete-list #{}}
                     school-ops)))))
+
+(def banana-ops
+  [{:action :climb-on-chair
+    :preconditions [:chair-at-middle-room :at-middle-room :on-floor]
+    :add-list #{:at-bananas :on-chair}
+    :delete-list #{:at-middle-room :on-floor}}
+   {:action :push-chair-from-door-to-middle-room
+    :preconditions [:chair-at-door :at-door]
+    :add-list #{:chair-at-middle-room :at-middle-room}
+    :delete-list #{:chair-at-door :at-door}}
+   {:action :walk-from-door-to-middle-room
+    :preconditions [:at-door :on-floor]
+    :add-list #{:at-middle-room}
+    :delete-list #{:at-door}}
+   {:action :grasp-bananas
+    :preconditions [:at-bananas :empty-handed]
+    :add-list #{:has-bananas}
+    :delete-list #{:empty-handed}}
+   {:action :drop-ball
+    :preconditions [:has-ball]
+    :add-list #{:empty-handed}
+    :delete-list #{:has-ball}}
+   {:action :eat-bananas
+    :preconditions [:has-bananas]
+    :add-list #{:empty-handed :not-hungry}
+    :delete-list #{:has-bananas :hungry}}])
+
+(deftest banana-case
+  (is (= (successful-action-list :push-chair-from-door-to-middle-room
+                                 :climb-on-chair
+                                 :drop-ball
+                                 :grasp-bananas
+                                 :eat-bananas)
+         (gps [:at-door :on-floor :has-ball :hungry :chair-at-door]
+              [:not-hungry]
+              banana-ops))))
