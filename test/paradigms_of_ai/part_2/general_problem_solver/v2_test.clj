@@ -205,8 +205,7 @@
               (make-block-ops [:a :b :c])))))
 
 (deftest inefficiency
-  (is (= [[:executing [:move :c :from :a :to :b]]
-          [:executing [:move :c :from :b :to :table]]]
+  (is (= [[:executing [:move :c :from :a :to :table]]]
          (gps [[:a :on :table] [:b :on :table] [:c :on :a] [:space :on :b] [:space :on :c] [:space :on :table]]
               [[:c :on :table]]
               (make-block-ops [:a :b :c])))))

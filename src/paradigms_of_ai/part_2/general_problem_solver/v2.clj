@@ -21,6 +21,18 @@
           (concat current-state add-list)
           (remove delete-list current-state))))
 
+(defn unfulfilled-precondition-count
+  [{:keys [preconditions]} state]
+  (->> preconditions
+       (remove (set state))
+       count))
+
+(defn appropriate-ops
+  [goal state ops]
+  (->> ops
+       (filter #(appropriate-p goal %))
+       (sort-by #(unfulfilled-precondition-count % state))))
+
 (defn achieve
   "A goal is achieved if it already holds or there is an appropriate op for it that is applicable"
   [state goal goal-stack ops]
@@ -28,7 +40,7 @@
     (sequence-contains? state goal) state
     (sequence-contains? goal-stack goal) nil
     :else
-    (->> (filter #(appropriate-p goal %) ops)
+    (->> (appropriate-ops goal state ops)
          (some #(apply-op state goal % goal-stack ops)))))
 
 (defn achieve-each
