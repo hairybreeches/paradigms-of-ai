@@ -195,5 +195,5 @@
           [:executing [:move :b :from :c :to :a]]
           [:executing [:move :c :from :table :to :b]]]
          (gps [[:a :on :b] [:b :on :c] [:c :on :table] [:space :on :a] [:space :on :table]]
-              [[:b :on :a] [:c :on :b]]
+              [[:c :on :b] [:b :on :a]]
               (make-block-ops [:a :b :c])))))

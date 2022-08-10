@@ -31,7 +31,7 @@
     (->> (filter #(appropriate-p goal %) ops)
          (some #(apply-op state goal % goal-stack ops)))))
 
-(defn achieve-all
+(defn achieve-each
   "Achieve each goal, and make sure they all remain true in the end"
   [state goals goal-stack ops]
   (let [possible-end-state (reduce
@@ -41,6 +41,17 @@
                              goals)]
     (when (set/subset? (set goals) (set possible-end-state))
       possible-end-state)))
+
+(defn orderings
+  [l]
+  (if (> (count l) 1)
+    [l (reverse l)]
+    [l]))
+
+(defn achieve-all
+  "Achieve each goal, trying several orderings"
+  [state goals goal-stack ops]
+  (some #(achieve-each state % goal-stack ops) (orderings goals)))
 
 (defn action?
   [state-message]
