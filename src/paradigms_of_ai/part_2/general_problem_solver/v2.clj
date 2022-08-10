@@ -44,9 +44,7 @@
 
 (defn orderings
   [l]
-  (if (> (count l) 1)
-    [l (reverse l)]
-    [l]))
+  [l])
 
 (defn achieve-all
   "Achieve each goal, trying several orderings"

@@ -190,10 +190,23 @@
               [[:b :on :a] [:a :on :table]]
               (make-block-ops [:a :b])))))
 
-(deftest goal-ordering
+(deftest goal-ordering-1
+  (is (= nil
+         (gps [[:a :on :b] [:b :on :c] [:c :on :table] [:space :on :a] [:space :on :table]]
+              [[:c :on :b] [:b :on :a]]
+              (make-block-ops [:a :b :c])))))
+
+(deftest goal-ordering-2
   (is (= [[:executing [:move :a :from :b :to :table]]
           [:executing [:move :b :from :c :to :a]]
           [:executing [:move :c :from :table :to :b]]]
          (gps [[:a :on :b] [:b :on :c] [:c :on :table] [:space :on :a] [:space :on :table]]
-              [[:c :on :b] [:b :on :a]]
+              [[:b :on :a] [:c :on :b]]
+              (make-block-ops [:a :b :c])))))
+
+(deftest inefficiency
+  (is (= [[:executing [:move :c :from :a :to :b]]
+          [:executing [:move :c :from :b :to :table]]]
+         (gps [[:a :on :table] [:b :on :table] [:c :on :a] [:space :on :b] [:space :on :c] [:space :on :table]]
+              [[:c :on :table]]
               (make-block-ops [:a :b :c])))))
