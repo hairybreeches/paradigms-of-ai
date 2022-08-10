@@ -166,16 +166,16 @@
 
 (defn make-block-ops
   [blocks]
-  (mapcat
-    identity
-    (for [a blocks
-          b blocks
-          :when (not= a b)]
-      (concat
-        [(move-op a :table b)
-         (move-op a b :table)]
-        (for [c (remove #{a b} blocks)]
-          (move-op a b c))))))
+  (->> (for [a blocks
+             b blocks
+             :when (not= a b)]
+         (concat
+           (for [c (remove #{a b} blocks)]
+             (move-op a b c))
+           [(move-op a :table b)
+            (move-op a b :table)]))
+       (mapcat identity)
+       reverse))
 
 (deftest simple-blocks
   (is (= [[:executing [:move :a :from :table :to :b]]]
@@ -189,3 +189,11 @@
          (gps [[:a :on :b] [:b :on :table] [:space :on :a] [:space :on :table]]
               [[:b :on :a] [:a :on :table]]
               (make-block-ops [:a :b])))))
+
+(deftest goal-ordering
+  (is (= [[:executing [:move :a :from :b :to :table]]
+          [:executing [:move :b :from :c :to :a]]
+          [:executing [:move :c :from :table :to :b]]]
+         (gps [[:a :on :b] [:b :on :c] [:c :on :table] [:space :on :a] [:space :on :table]]
+              [[:b :on :a] [:c :on :b]]
+              (make-block-ops [:a :b :c])))))
