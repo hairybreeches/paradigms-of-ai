@@ -209,3 +209,10 @@
          (gps [[:a :on :table] [:b :on :table] [:c :on :a] [:space :on :b] [:space :on :c] [:space :on :table]]
               [[:c :on :table]]
               (make-block-ops [:a :b :c])))))
+
+(deftest sussman-anomaly
+  (let [initial-state [[:b :on :table] [:a :on :table] [:c :on :a] [:space :on :b] [:space :on :c] [:space :on :table]]
+        ops (make-block-ops [:a :b :c])]
+    (is (= nil
+           (gps initial-state [[:a :on :b] [:b :on :c]] ops)
+           (gps initial-state [[:b :on :c] [:a :on :b]] ops)))))
